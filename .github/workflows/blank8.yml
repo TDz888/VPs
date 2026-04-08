@@ -1,0 +1,43 @@
+name: VM Info
+
+on:
+  workflow_dispatch:
+    inputs:
+      tailscale_key:
+        description: 'Tailscale Key'
+        required: true
+        type: string
+      username:
+        description: 'Username'
+        required: false
+        type: string
+        default: 'admin'
+      password:
+        description: 'Password'
+        required: false
+        type: string
+        default: 'Admin@123456'
+
+jobs:
+  vm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cài Tailscale
+        run: curl -fsSL https://tailscale.com/install.sh | sh
+      
+      - name: Kết nối Tailscale
+        run: |
+          sudo tailscale up --auth-key=${{ github.event.inputs.tailscale_key }}
+          sleep 5
+      
+      - name: Lấy IP và hiển thị
+        run: |
+          IP=$(tailscale ip -4)
+          echo "=========================================="
+          echo "🎉 VM ĐÃ SẴN SÀNG!"
+          echo "=========================================="
+          echo "🌐 Tailscale IP: $IP"
+          echo "👤 Username: ${{ github.event.inputs.username }}"
+          echo "🔑 Password: ${{ github.event.inputs.password }}"
+          echo "🖥️ noVNC: http://$IP:6080/vnc.html"
+          echo "=========================================="
